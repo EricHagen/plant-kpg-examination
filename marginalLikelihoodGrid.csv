@@ -1,0 +1,10 @@
+﻿,M0,M1,BF
+2,EpisodicBD,ConstBD,1993525.319
+3,MassExtBD,ConstBD,1992914.829
+8,EpisodicBD,MassExtBD,610.4896
+1,ConstBD,ConstBD,0
+5,EpisodicBD,EpisodicBD,0
+9,MassExtBD,MassExtBD,0
+6,MassExtBD,EpisodicBD,-610.4896
+7,ConstBD,MassExtBD,-1992914.829
+4,ConstBD,EpisodicBD,-1993525.319
