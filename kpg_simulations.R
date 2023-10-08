@@ -50,8 +50,11 @@ model_comparison <- function(sampfrac, phy){
   }
   
   #Model fitting
+  print("Fitting Constant BD (1 of 3)...")
   mlconstBD <- tess.steppingStoneSampling(likelihoodFunction=constBD, priors=priorsConstBD, parameters=runif(2,0,1), logTransforms=c(TRUE,TRUE), iterations=1000, burnin=100, K=50)
+  print("Fitting Episodic BD (2 of 3)...")
   mlepisodicBD <- tess.steppingStoneSampling(likelihoodFunction = episodicBD, priors = priorsEpisodicBD, parameters = runif(4,0,1), logTransforms = c(TRUE,TRUE,TRUE,TRUE), iterations = 1000, burnin = 100, K = 50)
+  print("Fitting Mass Extinction BD (3 of 3)...")
   mlMassExtinctionBD <- tess.steppingStoneSampling(likelihoodFunction=likelihoodMassExtinctionBD, priors=priorsMassExtinctionBD, parameters=c(runif(2,0,1), max(times)*3/4), logTransforms=c(TRUE,TRUE,FALSE), iterations=1000, burnin=100, K=50)
   
   #Organize & return data
