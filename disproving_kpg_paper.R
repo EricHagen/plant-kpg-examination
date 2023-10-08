@@ -115,22 +115,4 @@ marginalLikelihoodGrid$BF <- 2 * (candidateModels[marginalLikelihoodGrid$M0] - c
 marginalLikelihoodGrid <- marginalLikelihoodGrid[order(marginalLikelihoodGrid$BF, decreasing=TRUE),]
 print(marginalLikelihoodGrid)
 
-#########################################################################################################
-#Can we reproduce their results with a tree that we have removed taxa from?
-#########################################################################################################
-
-#Removing extinct taxa from a simulated phylogeny
-extinct_removed_orig <- NULL
-while(is.null(extinct_removed_orig) || length(extinct_removed_orig$tip.label) < 100){
-  extinct_removed_orig <- tree.bd(pars=c(1, 0.3), max.taxa=10000, include.extinct=TRUE)
-}
-extinct_removed <- drop.extinct(extinct_removed_orig)
-
-#Directly simulate mass extinction with TreeSim (10% of species survive extinction 30 mya)
-mass_ext_phy <- NULL
-while(is.null(mass_ext_phy)){
-  mass_ext_phy <- sim.rateshift.taxa(n=5000, numbsim=1, lambda=c(1,0.5), mu=c(0.3, 0.4), frac=c(1,0.1), times=c(0,30))
-}
-mass_ext_extant <- drop.extinct(mass_ext_phy[[1]])
-
 
