@@ -115,4 +115,11 @@ marginalLikelihoodGrid$BF <- 2 * (candidateModels[marginalLikelihoodGrid$M0] - c
 marginalLikelihoodGrid <- marginalLikelihoodGrid[order(marginalLikelihoodGrid$BF, decreasing=TRUE),]
 print(marginalLikelihoodGrid)
 
+############################################################################################
+#Extract ages of all the nodes in the phylogeny
+node_ages <- dateNodes(sb_tree_trimmed)
+node_ages <- sort(node_ages, decreasing = T)
+node_ages[1] #This is the root, dated to approximately 135.9 million years ago
+length(which(node_ages > 65)) / length(node_ages) #Only 0.35% of all evolutionary events occur at or before the (generous) 65mya mark
+
 
