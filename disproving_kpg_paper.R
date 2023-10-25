@@ -120,6 +120,9 @@ print(marginalLikelihoodGrid)
 node_ages <- dateNodes(sb_tree_trimmed)
 node_ages <- sort(node_ages, decreasing = T)
 node_ages[1] #This is the root, dated to approximately 135.9 million years ago
-length(which(node_ages > 65)) / length(node_ages) #Only 0.35% of all evolutionary events occur at or before the (generous) 65mya mark
+length(which(node_ages > 65)) / (length(node_ages) / 2) #Only 0.35% of all evolutionary events occur at or before the (generous) 65mya mark
 
+#How many lineages exist at 65 mya?
+cretaceous_slice <- timeSliceTree(ttree=sb_tree_trimmed, sliceTime=65, plot=T)
+length(cretaceous_slice$tip.label) / length(sb_tree_trimmed$tip.label)
 
