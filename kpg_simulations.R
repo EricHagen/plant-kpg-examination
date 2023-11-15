@@ -77,12 +77,23 @@ while(is.null(extinct_removed_orig) || length(extinct_removed_orig$tip.label) < 
 }
 extinct_removed <- drop.extinct(extinct_removed_orig)
 
-#Directly simulate mass extinction with TreeSim (10% of species survive extinction 30 mya)
+#Directly simulate mass extinction with TreeSim (10% of species survive extinction at mass_ext_time)
 mass_ext_phy <- NULL
-while(is.null(mass_ext_phy)){
-  mass_ext_phy <- sim.rateshift.taxa(n=5000, numbsim=1, lambda=c(1,0.5), mu=c(0.3, 0.4), frac=c(1,0.1), times=c(0,30))
+mass_ext_time <- 66 #66 mya
+root_age <- 0
+while(is.null(mass_ext_phy) || isFALSE(between(root_age, 130, 140))){
+  mass_ext_phy <- sim.rateshift.taxa(n=70000, numbsim=1, lambda=c(1,2), mu=c(0.6, 0.8), frac=c(1,0.1), times=c(0, mass_ext_time))
+  mass_ext_extant <- drop.extinct(mass_ext_phy[[1]])
+  node_ages <- suppressMessages(dateNodes(mass_ext_extant))
+  node_ages <- sort(node_ages, decreasing = T)
+  root_age <- node_ages[1]
 }
 mass_ext_extant <- drop.extinct(mass_ext_phy[[1]])
+
+#Check that the mass extinction occurs within the age of the tree
+node_ages <- dateNodes(mass_ext_extant)
+node_ages <- sort(node_ages, decreasing = T)
+node_ages[1]
 
 #########################################################################################################
 # Running the model comparison function on our simulated trees
@@ -90,5 +101,38 @@ mass_ext_extant <- drop.extinct(mass_ext_phy[[1]])
 samplingfrac=0.5
 extinct_removed_models <- model_comparison(sampfrac=samplingfrac, phy=extinct_removed)
 mass_ext_extant_models <- model_comparison(sampfrac=samplingfrac, phy=mass_ext_extant)
+#Constant BD strongly favored in both
+
+#Now let's make some figures, using the mass extinction simulated phylogeny
+tess.analysis(mass_ext_extant, empiricalHyperPriors = TRUE, samplingProbability = samplingfrac,
+              estimateNumberMassExtinctions = TRUE, MAX_ITERATIONS = 10000, dir = "comet_mass_ext")
+output <- tess.process.output("comet_mass_ext", numExpectedRateChanges = 2, numExpectedMassExtinctions = 2)
+layout.mat <- matrix(1:6,nrow=3,ncol=2,byrow=TRUE)
+layout(layout.mat)
+tess.plot.output(output, fig.types = c("speciation rates", "speciation shift times", "extinction rates", "extinction shift times", "mass extinction Bayes factors", "mass extinction times"), las=2)
+
+#Another attempt:
+speciationPriorMu <- 1
+speciationPriorSigma <- 0.5
+extinctionPriorMu <- 0.3
+extinctionPriorSigma <- 0.5
+speciationRatePriorMean <- log((speciationPriorMu^2) / sqrt(speciationPriorSigma^2 + speciationPriorMu^2))
+speciationRatePriorStDev <- sqrt(log(1+speciationPriorSigma^2 / (speciationPriorMu^2)))
+extinctionRatePriorMean <- log((extinctionPriorMu^2) / sqrt(extinctionPriorSigma^2 + extinctionPriorMu^2))
+extinctionRatePriorStDev <- sqrt(log(1 + extinctionPriorSigma^2 / (extinctionPriorMu^2)))
+expectedSurvivalProbability <- 0.1
+pMassExtinctionPriorShape2 <- 100
+pMassExtinctionPriorShape1 <- -(pMassExtinctionPriorShape2 * expectedSurvivalProbability) / (expectedSurvivalProbability - 1)
+tess.analysis(mass_ext_extant, empiricalHyperPriors = FALSE, initialSpeciationRate = speciationPriorMu, 
+              speciationRatePriorMean = speciationRatePriorMean, speciationRatePriorStDev = speciationRatePriorStDev, 
+              initialExtinctionRate = extinctionPriorMu, extinctionRatePriorMean = extinctionRatePriorMean, 
+              extinctionRatePriorStDev = extinctionRatePriorStDev, samplingProbability = samplingfrac, 
+              numExpectedRateChanges = 1, numExpectedMassExtinctions = 1,
+              pMassExtinctionPriorShape1 = pMassExtinctionPriorShape1, pMassExtinctionPriorShape2 = pMassExtinctionPriorShape2, 
+              MAX_ITERATIONS = 10000, dir = "comet_mass_ext_two")
+output <- tess.process.output("comet_mass_ext_two", numExpectedRateChanges = 2, numExpectedMassExtinctions = 2)
+layout.mat <- matrix(1:6,nrow=3,ncol=2,byrow=TRUE)
+layout(layout.mat)
+tess.plot.output(output, fig.types = c("speciation rates", "speciation shift times", "extinction rates", "extinction shift times", "mass extinction Bayes factors", "mass extinction times"), las=2)
 
 
