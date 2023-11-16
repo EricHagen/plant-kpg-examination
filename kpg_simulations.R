@@ -95,6 +95,22 @@ node_ages <- dateNodes(mass_ext_extant)
 node_ages <- sort(node_ages, decreasing = T)
 node_ages[1]
 
+#ALTERNATIVELY:
+#mass_ext_phy <- NULL ; mass_ext_time <- 66 ; root_age <- 0 ; i=0
+#while(is.null(mass_ext_phy) || isFALSE(between(root_age, 130, 140))){
+#  lambda1 <- round(runif(n=1, min=0.1, max=1.5), 1)
+#  lambda2 <- lambda1 * round(runif(n=1, min=1.5, max=2.5), 1)
+#  mu1 <- lambda1 / round(runif(n=1, min=2, max=4), 1)
+#  mu2 <- mu1 * round(runif(n=1, min=1.2, max=2), 1)
+#  mass_ext_phy <- sim.rateshift.taxa(n=70000, numbsim=1, lambda=c(lambda1,lambda2), mu=c(mu1, mu2), frac=c(1,0.1), times=c(0, mass_ext_time))
+#  mass_ext_extant <- drop.extinct(mass_ext_phy[[1]])
+#  node_ages <- suppressMessages(dateNodes(mass_ext_extant))
+#  node_ages <- sort(node_ages, decreasing = T)
+#  root_age <- node_ages[1]
+#  i = i+1
+#  print(paste0("This while loop has so far run ", i, "iterations without success."))
+#}
+
 #########################################################################################################
 # Running the model comparison function on our simulated trees
 #########################################################################################################
