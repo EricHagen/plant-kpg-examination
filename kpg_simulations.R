@@ -3,7 +3,7 @@
 #########################################################################################################
 
 #Load necessary packages
-x <- c("ape", "TESS", "diversitree", "geiger", "TreeSim")
+x <- c("ape", "TESS", "diversitree", "geiger", "TreeSim", "paleotree", "dplyr")
 invisible(lapply(x, library, character.only=T))
 
 #Model comparison function
@@ -108,13 +108,28 @@ node_ages[1]
 #  node_ages <- sort(node_ages, decreasing = T)
 #  root_age <- node_ages[1]
 #  i = i+1
-#  print(paste0("This while loop has so far run ", i, "iterations without success."))
+#  print(paste0("This while loop has so far run ", i, " iterations without success."))
 #}
+
+mass_ext_phy <- NULL
+fraction <- 0.3
+while(is.null(mass_ext_phy)){
+  mass_ext_phy <- sim.rateshift.taxa(n=70000, numbsim=5, lambda=c(0.2,0.3), mu=c(0.1, 0.25), frac=c(1,fraction), times=c(0, 66))
+}
+for(i in 1:length(mass_ext_phy)){
+  node_ages <- suppressMessages(dateNodes(mass_ext_phy[[i]]))
+  node_ages <- sort(node_ages, decreasing = T)
+  node_ages[1]
+  print(paste0("Tree ", i, " has ", length(mass_ext_phy[[i]]$tip.label), " tips and a root age of ", node_ages[1], "."))
+}
+
+mass_ext_tree <- mass_ext_phy[[1]]
+mass_ext_extant <- drop.extinct(mass_ext_tree)
 
 #########################################################################################################
 # Running the model comparison function on our simulated trees
 #########################################################################################################
-samplingfrac=0.5
+samplingfrac=0.22
 extinct_removed_models <- model_comparison(sampfrac=samplingfrac, phy=extinct_removed)
 mass_ext_extant_models <- model_comparison(sampfrac=samplingfrac, phy=mass_ext_extant)
 #Constant BD strongly favored in both
@@ -122,15 +137,15 @@ mass_ext_extant_models <- model_comparison(sampfrac=samplingfrac, phy=mass_ext_e
 #Now let's make some figures, using the mass extinction simulated phylogeny
 tess.analysis(mass_ext_extant, empiricalHyperPriors = TRUE, samplingProbability = samplingfrac,
               estimateNumberMassExtinctions = TRUE, MAX_ITERATIONS = 10000, dir = "comet_mass_ext")
-output <- tess.process.output("comet_mass_ext", numExpectedRateChanges = 2, numExpectedMassExtinctions = 2)
-layout.mat <- matrix(1:6,nrow=3,ncol=2,byrow=TRUE)
+output <- tess.process.output("comet_mass_ext", numExpectedRateChanges = 1, numExpectedMassExtinctions = 1)
+layout.mat <- matrix(1:6, nrow=3, ncol=2, byrow=TRUE)
 layout(layout.mat)
 tess.plot.output(output, fig.types = c("speciation rates", "speciation shift times", "extinction rates", "extinction shift times", "mass extinction Bayes factors", "mass extinction times"), las=2)
 
-#Another attempt:
-speciationPriorMu <- 1
+#Another attempt, setting hyperpriors manually rather than estimating them empirically:
+speciationPriorMu <- 0.2
 speciationPriorSigma <- 0.5
-extinctionPriorMu <- 0.3
+extinctionPriorMu <- 0.1
 extinctionPriorSigma <- 0.5
 speciationRatePriorMean <- log((speciationPriorMu^2) / sqrt(speciationPriorSigma^2 + speciationPriorMu^2))
 speciationRatePriorStDev <- sqrt(log(1+speciationPriorSigma^2 / (speciationPriorMu^2)))
