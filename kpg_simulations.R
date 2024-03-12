@@ -166,4 +166,29 @@ tess.plot.output(output, fig.types = c("speciation rates", "speciation shift tim
 #layout(layout.mat)
 #tess.plot.output(output, fig.types = c("speciation rates", "speciation shift times", "extinction rates", "extinction shift times", "mass extinction Bayes factors", "mass extinction times"), las=2)
 
+#REVIEWER SUGGESTION: Grand Coupure dampening?
+two_mass_exts <- NULL
+fractions <- c(0.1, 0.8)
+while(is.null(two_mass_exts)){
+ #33.5 mya is Eocene-Oligocene boundary
+ two_mass_exts <- sim.rateshift.taxa(n=70000, numbsim=5, lambda=c(0.15,0.2,0.25), mu=c(0.13, 0.18, 0.22), frac=c(1,fractions), times=c(0, 33.5, 66))
+}
+for(i in 1:length(two_mass_exts)){
+ node_ages <- suppressMessages(dateNodes(two_mass_exts[[i]]))
+ node_ages <- sort(node_ages, decreasing = T)
+ node_ages[1]
+ print(paste0("Tree ", i, " has ", length(two_mass_exts[[i]]$tip.label), " tips and a root age of ", node_ages[1], "."))
+}
+
+two_mass_exts_tree <- two_mass_exts[[2]]
+two_mass_exts_extant <- drop.extinct(two_mass_exts_tree)
+
+tess.analysis(two_mass_exts_extant, empiricalHyperPriors = TRUE, samplingProbability = samplingfrac,
+              estimateNumberMassExtinctions = TRUE, MAX_ITERATIONS = 10000, dir = "comet_mass_ext")
+output <- tess.process.output("comet_mass_ext", numExpectedRateChanges = 2, numExpectedMassExtinctions = 2)
+layout.mat <- matrix(1:6, nrow=3, ncol=2, byrow=TRUE)
+layout(layout.mat)
+tess.plot.output(output, fig.types = c("speciation rates", "speciation shift times", "extinction rates", "extinction shift times", "mass extinction Bayes factors", "mass extinction times"), las=2)
+
+
 
