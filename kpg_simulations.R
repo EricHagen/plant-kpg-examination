@@ -123,7 +123,7 @@ for(i in 1:length(mass_ext_phy)){
   print(paste0("Tree ", i, " has ", length(mass_ext_phy[[i]]$tip.label), " tips and a root age of ", node_ages[1], "."))
 }
 
-mass_ext_tree <- mass_ext_phy[[5]]
+mass_ext_tree <- mass_ext_phy[[3]]
 mass_ext_extant <- drop.extinct(mass_ext_tree)
 
 #########################################################################################################
